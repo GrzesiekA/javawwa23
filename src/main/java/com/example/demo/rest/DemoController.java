@@ -20,13 +20,24 @@ public class DemoController {
     }
 
     @GetMapping
-    public String fileContent () throws IOException {
+    public String fileContent() throws IOException {
         return fileService.fileContent();
     }
+
     @GetMapping("/price")
-    public List<PricePerDay> priceContent () throws IOException {
+    public List<PricePerDay> priceContent() throws IOException {
         return fileService.readPrices();
     }
 
+    @GetMapping("/stats")
+    public PricePerDay statistics() throws IOException {
+        return fileService.statistics();
+    }
+
+
+//    @GetMapping("/price2")
+//    public List<PricePerDay> priceContent2 () throws IOException {
+//        return fileService.readPrices2();
+//    }
 
 }

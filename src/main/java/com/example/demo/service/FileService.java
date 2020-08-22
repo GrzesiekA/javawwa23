@@ -1,6 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.PricePerDay;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -9,6 +13,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,4 +65,46 @@ public class FileService {
         return LocalDate.parse(s);
     }
 
+    public PricePerDay statistics() throws IOException {
+        return readPrices()
+                .stream()
+                .sorted(new PriceComparator())
+                .findFirst()
+                .get();
+    }
+
+    public class PriceComparator implements Comparator<PricePerDay> {
+
+        @Override
+        public int compare(PricePerDay t1, PricePerDay t2) {
+            return (t1.getMidQualityPrice().compareTo(t2.getMidQualityPrice()));
+        }
+    }
+
+//    public List<PricePerDay> readPrices2() throws IOException {
+//        CsvMapper mapper = new CsvMapper();
+////        CsvSchema schema = mapper.schemaFor(PricePerDay.class);
+//
+//        CsvSchema schema = CsvSchema.builder()
+//                .addColumn("state")
+//                .addColumn("highQualityPrice")
+//                .addColumn("")
+//                .addColumn("midQualityPrice")
+//                .addColumn(Column.)
+//                .addColumn("lowQualityPrice")
+//                .addColumn("")
+//                .addColumn("date")
+//                .build();
+//
+//        mapper.registerModule(new JavaTimeModule());
+//
+//        MappingIterator<PricePerDay> it = mapper.readerFor(PricePerDay.class).with(schema)
+//                .readValues(fileContent());
+//
+//        return it.readAll();
+//    }
+
+
 }
+
+
