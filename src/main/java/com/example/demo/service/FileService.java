@@ -1,10 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.PricePerDay;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -45,26 +41,6 @@ public class FileService {
                 .collect(Collectors.toList());
     }
 
-    private BigDecimal getPriceBigDecimal(String t) {
-        if (t == null) {
-            return null;
-        }
-
-        try {
-            return new BigDecimal(t);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-
-    }
-
-    private LocalDate getDate(String s) {
-        if (s == null) {
-            return null;
-        }
-        return LocalDate.parse(s);
-    }
-
     public PricePerDay statistics() throws IOException {
         return readPrices()
                 .stream()
@@ -79,6 +55,36 @@ public class FileService {
         public int compare(PricePerDay t1, PricePerDay t2) {
             return (t1.getMidQualityPrice().compareTo(t2.getMidQualityPrice()));
         }
+    }
+
+
+    public PricePerDay statisticsSecondVersion() throws IOException {
+        return readPrices()
+                .stream()
+                .sorted(new Comparator<PricePerDay>() {
+                    @Override
+                    public int compare(PricePerDay t1, PricePerDay t2) {
+                        return t1.getMidQualityPrice().compareTo(t2.getMidQualityPrice());
+                    }
+                })
+                .findFirst()
+                .get();
+    }
+
+    public PricePerDay statisticsThirdVersion() throws IOException {
+        return readPrices()
+                .stream()
+                .sorted((t1,t2)-> t1.getMidQualityPrice().compareTo(t2.getMidQualityPrice()))
+                .findFirst()
+                .get();
+    }
+
+    public PricePerDay statisticsFourthVersion() throws IOException {
+        return readPrices()
+                .stream()
+                .sorted(Comparator.comparing(PricePerDay::getMidQualityPrice))
+                .findFirst()
+                .get();
     }
 
 //    public List<PricePerDay> readPrices2() throws IOException {
@@ -105,6 +111,24 @@ public class FileService {
 //    }
 
 
+    private BigDecimal getPriceBigDecimal(String t) {
+        if (t == null) {
+            return null;
+        }
+
+        try {
+            return new BigDecimal(t);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private LocalDate getDate(String s) {
+        if (s == null) {
+            return null;
+        }
+        return LocalDate.parse(s);
+    }
 }
 
 
