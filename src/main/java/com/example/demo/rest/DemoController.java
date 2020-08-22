@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 public class DemoController {
@@ -34,6 +37,15 @@ public class DemoController {
         return fileService.statistics();
     }
 
+    @GetMapping("/statsForCountry")
+    public Map<String, Optional<PricePerDay>> statsForCountry() throws IOException {
+        return fileService.statisticsForCountry();
+    }
+
+    @GetMapping("/statsForDay")
+    public Map<LocalDate, Optional<PricePerDay>> statsForDay() throws IOException {
+        return fileService.lowerPriceForDay();
+    }
 
 //    @GetMapping("/price2")
 //    public List<PricePerDay> priceContent2 () throws IOException {

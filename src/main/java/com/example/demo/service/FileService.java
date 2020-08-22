@@ -11,6 +11,9 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,7 +77,7 @@ public class FileService {
     public PricePerDay statisticsThirdVersion() throws IOException {
         return readPrices()
                 .stream()
-                .sorted((t1,t2)-> t1.getMidQualityPrice().compareTo(t2.getMidQualityPrice()))
+                .sorted((t1, t2) -> t1.getMidQualityPrice().compareTo(t2.getMidQualityPrice()))
                 .findFirst()
                 .get();
     }
@@ -86,6 +89,31 @@ public class FileService {
                 .findFirst()
                 .get();
     }
+
+
+    public Map<String, Optional<PricePerDay>> statisticsForCountry() throws IOException {
+        return readPrices().stream()
+                .collect(Collectors.groupingBy(PricePerDay::getState,
+                        Collectors.minBy(Comparator.comparing(PricePerDay::getMidQualityPrice))));
+    }
+
+
+    public Map<LocalDate, Optional<PricePerDay>> lowerPriceForDay() throws IOException {
+        return readPrices().stream()
+                .filter(p -> p.getLowQualityPrice() != null)
+                .collect(Collectors.groupingBy(PricePerDay::getDate,
+                        Collectors.minBy(Comparator.comparing(PricePerDay::getLowQualityPrice))));
+    }
+
+//    public Map<LocalDate, Optional<PricePerDay>> lowerPriceForMonth() throws IOException {
+//        return readPrices().stream()
+//                .filter(p -> p.getLowQualityPrice() != null)
+//                .collect(Collectors.groupingBy(PricePerDay::getDate,
+//                        Collectors.minBy(Comparator.comparing(PricePerDay::getLowQualityPrice))))
+//                .
+//
+//    }
+
 
 //    public List<PricePerDay> readPrices2() throws IOException {
 //        CsvMapper mapper = new CsvMapper();
