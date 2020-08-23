@@ -11,10 +11,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,16 +42,35 @@ public class FileService {
                 .map(line -> line.split(","))
                 .map(table -> new PricePerDay(
                         table[0],
-                        getPriceBigDecimal(table[1]),
-                        getPriceBigDecimal(table[3]),
-                        getPriceBigDecimal(table[5]),
+                        parseFromString(BigDecimal.ZERO, table[1], BigDecimal::new),
+                        parseFromString(BigDecimal.ZERO, table[3], BigDecimal::new),
+                        parseFromString(BigDecimal.ZERO, table[5], BigDecimal::new),
                         getDate(table[7]),
-                        getCount(table[2]),
-                        getCount(table[4]),
-                        getCount(table[6])
+                        parseFromString(BigInteger.ONE, table[2], BigInteger::new),
+                        parseFromString(BigInteger.ONE, table[4], BigInteger::new),
+                        parseFromString(BigInteger.ONE, table[6], BigInteger::new)
                 ))
                 .collect(Collectors.toList());
     }
+
+//    public List<PricePerDay> readPrices2() throws IOException {
+//        List<String> strings = Files.readAllLines(resourceFile.getFile().toPath());
+//        return strings.stream()
+//                .filter(line -> line != null)
+//                .map(line -> line.split(","))
+//                .map(table -> new PricePerDay(
+//                        table[0],
+//                        parseFromString2(BigDecimal.ZERO, () -> new BigDecimal(table[1])),
+//                        parseFromString(BigDecimal.ZERO, () -> new BigDecimal(table[3])),
+//                        parseFromString(BigDecimal.ZERO, () -> new BigDecimal(table[5])),
+//                        getDate(table[7]),
+//                        parseFromString(BigInteger.ONE, table[2], BigInteger::new),
+//                        parseFromString(table[4]),
+//                        parseFromString(table[6])
+//                ))
+//                .collect(Collectors.toList());
+//    }
+
 
     public PricePerDay statistics() throws IOException {
         return readPrices()
@@ -172,29 +194,49 @@ public class FileService {
 //    }
 
 
-    private BigDecimal getPriceBigDecimal(String t) {
-        if (t == null) {
-            return BigDecimal.ZERO;
-        }
+    private <T extends Number> T parseFromString(T defaultValue, String s, Function<String, T> creator) {
+        if (s == null) return defaultValue;
 
         try {
-            return new BigDecimal(t);
+            return creator.apply(s);
         } catch (NumberFormatException e) {
-            return BigDecimal.ZERO;
+            return defaultValue;
         }
     }
 
-    private Integer getCount(String t) {
-        if (t == null) {
-            return 1;
-        }
+    private <T extends Number> T parseFromString2(T defaultValue, Supplier<T> supplier) {
 
         try {
-            return Integer.parseInt(t);
-        } catch (NumberFormatException e) {
-            return 1;
+            return supplier.get();
+        } catch (NumberFormatException | NullPointerException e) {
+            return defaultValue;
         }
     }
+
+    /*zamiana na metodę parseFromString*/
+//    private BigDecimal getPriceBigDecimal(String t) {
+//        if (t == null) {
+//            return BigDecimal.ZERO;
+//        }
+//
+//        try {
+//            return new BigDecimal(t);
+//        } catch (NumberFormatException e) {
+//            return BigDecimal.ZERO;
+//        }
+//    }
+//
+//    private Integer getCount(String t) {
+//        if (t == null) {
+//            return 1;
+//        }
+//
+//        try {
+//            return Integer.parseInt(t);
+//        } catch (NumberFormatException e) {
+//            return 1;
+//        }
+//    }
 
     private LocalDate getDate(String s) {
         if (s == null) {

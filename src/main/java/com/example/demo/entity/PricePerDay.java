@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 @JsonPropertyOrder({"state", "highQualityPrice", "highCount", "midQualityPrice", "midCount", "lowQualityPrice", "lowCount", "date"})
@@ -19,7 +20,7 @@ public class PricePerDay {
     private BigDecimal midQualityPrice;
     private BigDecimal lowQualityPrice;
     private LocalDate date;
-    private  Integer highCount;
-    private  Integer midCount;
-    private  Integer lowCount;
+    private BigInteger highCount;
+    private  BigInteger midCount;
+    private  BigInteger lowCount;
 }
