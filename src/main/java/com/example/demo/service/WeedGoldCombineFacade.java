@@ -30,7 +30,7 @@ public class WeedGoldCombineFacade {
         Map<String, Optional<PricePerDay>> statistics = statsService.lowerPriceForMonth();
         BigDecimal gold = goldService.getGold("http://api.nbp.pl/api/cenyzlota/");
 
-        if (gold.compareTo(BigDecimal.ZERO) == 0) {
+        if (gold.compareTo(BigDecimal.ONE) < 0) {
             emailService.sendEmail();
         } else {
             return statistics.entrySet().stream()
