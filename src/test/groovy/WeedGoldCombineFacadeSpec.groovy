@@ -17,7 +17,7 @@ class WeedGoldCombineFacadeSpec extends Specification {
     WeedGoldCombineFacade weedGoldCombineFacade = new WeedGoldCombineFacade(
             goldService,
             statService,
-            emailService
+            emailService, currencyConverter, currencyRetriever
     )
 
     def 'should calculate weed price in gold'() {

@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.springframework.context.annotation.PropertySource;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -20,9 +19,11 @@ class WeedGoldCombineFacadeTest {
     private GoldService goldService = Mockito.mock(GoldService.class);
     private FileService statService = Mockito.mock(FileService.class);
     private EmailService emailService = Mockito.mock(EmailService.class);
+    private CurrencyConverter currencyConverter = Mockito.mock(CurrencyConverter.class);
+    private CurrencyRetriever currencyRetriever = Mockito.mock(CurrencyRetriever.class);
 
 
-    private WeedGoldCombineFacade wgFacade = new WeedGoldCombineFacade(goldService, statService, emailService);
+    private WeedGoldCombineFacade wgFacade = new WeedGoldCombineFacade(goldService, statService, emailService, currencyConverter);
 
     @Test
     public void shouldDoSomething() throws IOException {
@@ -45,7 +46,7 @@ class WeedGoldCombineFacadeTest {
 
     @Test
     public void shouldSendEmail() throws IOException {
-    
+
         //given
         Mockito.when(goldService.getGold(ArgumentMatchers.anyString())).thenReturn(BigDecimal.ONE);
         Mockito.when(statService.lowerPriceForMonth()).thenReturn(Map.of("2020-08-23",
@@ -53,7 +54,7 @@ class WeedGoldCombineFacadeTest {
                         .lowQualityPrice(new BigDecimal(10))
                         .build()
                 )));
-        
+
         //when
         wgFacade.weedForGold();
         //then
