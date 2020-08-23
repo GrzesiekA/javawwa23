@@ -58,6 +58,11 @@ public class DemoController {
         return fileService.sumLowPrices();
     }
 
+    @GetMapping("/sumPerDay")
+    public Map<LocalDate, BigDecimal> sumPerDay() throws IOException {
+        return fileService.sumAllPricesPerDay();
+    }
+
 //    @GetMapping("/price2")
 //    public List<PricePerDay> priceContent2 () throws IOException {
 //        return fileService.readPrices2();

@@ -119,6 +119,17 @@ public class FileService {
 
     }
 
+//    public BigDecimal sumLowPrices() throws IOException {
+//        return readPrices().stream().
+//                flatMap(p -> Stream.of(
+//                        p.getHighQualityPrice().multiply(new BigDecimal(p.getHighCount())),
+//                        p.getMidQualityPrice().multiply(new BigDecimal(p.getMidCount())),
+//                        p.getLowQualityPrice().multiply(new BigDecimal(p.getLowCount()))
+//                ))
+//                .reduce(BigDecimal.ZERO,
+//                        BigDecimal::add);
+//    }
+
     public BigDecimal sumLowPrices() throws IOException {
 
         return readPrices().stream().
@@ -130,6 +141,23 @@ public class FileService {
                 .reduce(BigDecimal.ZERO,
                         BigDecimal::add);
     }
+
+    public Map<LocalDate, BigDecimal> sumAllPricesPerDay() throws IOException {
+
+        return readPrices().stream()
+                .collect(Collectors.groupingBy(
+                        PricePerDay::getDate,
+                        Collectors.flatMapping(
+                                p -> Stream.of(
+                                        p.getHighQualityPrice().multiply(new BigDecimal(p.getHighCount())),
+                                        p.getMidQualityPrice().multiply(new BigDecimal(p.getMidCount())),
+                                        p.getLowQualityPrice().multiply(new BigDecimal(p.getLowCount()))
+                                ),
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add)
+                        )
+                ));
+    }
+
 
 //    public List<PricePerDay> readPrices() throws IOException {
 //        CsvMapper mapper = new CsvMapper();
@@ -146,24 +174,25 @@ public class FileService {
 
     private BigDecimal getPriceBigDecimal(String t) {
         if (t == null) {
-            return null;
+            return BigDecimal.ZERO;
         }
 
         try {
             return new BigDecimal(t);
         } catch (NumberFormatException e) {
-            return null;
+            return BigDecimal.ZERO;
         }
     }
+
     private Integer getCount(String t) {
         if (t == null) {
-            return null;
+            return 1;
         }
 
         try {
             return Integer.parseInt(t);
         } catch (NumberFormatException e) {
-            return null;
+            return 1;
         }
     }
 
