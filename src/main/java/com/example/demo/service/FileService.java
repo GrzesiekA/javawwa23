@@ -1,6 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.PricePerDay;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -9,12 +13,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class FileService {
@@ -39,7 +42,10 @@ public class FileService {
                         getPriceBigDecimal(table[1]),
                         getPriceBigDecimal(table[3]),
                         getPriceBigDecimal(table[5]),
-                        getDate(table[7])
+                        getDate(table[7]),
+                        getCount(table[2]),
+                        getCount(table[4]),
+                        getCount(table[6])
                 ))
                 .collect(Collectors.toList());
     }
@@ -105,30 +111,29 @@ public class FileService {
                         Collectors.minBy(Comparator.comparing(PricePerDay::getLowQualityPrice))));
     }
 
-//    public Map<LocalDate, Optional<PricePerDay>> lowerPriceForMonth() throws IOException {
-//        return readPrices().stream()
-//                .filter(p -> p.getLowQualityPrice() != null)
-//                .collect(Collectors.groupingBy(PricePerDay::getDate,
-//                        Collectors.minBy(Comparator.comparing(PricePerDay::getLowQualityPrice))))
-//                .
-//
-//    }
+    public Map<String, Optional<PricePerDay>> lowerPriceForMonth() throws IOException {
+        return readPrices().stream()
+                .filter(p -> p.getLowQualityPrice() != null)
+                .collect(Collectors.groupingBy(p -> p.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM")),
+                        Collectors.minBy(Comparator.comparing(PricePerDay::getLowQualityPrice))));
 
+    }
 
-//    public List<PricePerDay> readPrices2() throws IOException {
+    public BigDecimal sumLowPrices() throws IOException {
+
+        return readPrices().stream().
+                flatMap(p -> Stream.of(
+                        p.getHighQualityPrice().multiply(new BigDecimal(p.getHighCount())),
+                        p.getMidQualityPrice().multiply(new BigDecimal(p.getMidCount())),
+                        p.getLowQualityPrice().multiply(new BigDecimal(p.getLowCount()))
+                ))
+                .reduce(BigDecimal.ZERO,
+                        BigDecimal::add);
+    }
+
+//    public List<PricePerDay> readPrices() throws IOException {
 //        CsvMapper mapper = new CsvMapper();
-////        CsvSchema schema = mapper.schemaFor(PricePerDay.class);
-//
-//        CsvSchema schema = CsvSchema.builder()
-//                .addColumn("state")
-//                .addColumn("highQualityPrice")
-//                .addColumn("")
-//                .addColumn("midQualityPrice")
-//                .addColumn(Column.)
-//                .addColumn("lowQualityPrice")
-//                .addColumn("")
-//                .addColumn("date")
-//                .build();
+//        CsvSchema schema = mapper.schemaFor(PricePerDay.class);
 //
 //        mapper.registerModule(new JavaTimeModule());
 //
@@ -146,6 +151,17 @@ public class FileService {
 
         try {
             return new BigDecimal(t);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+    private Integer getCount(String t) {
+        if (t == null) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(t);
         } catch (NumberFormatException e) {
             return null;
         }

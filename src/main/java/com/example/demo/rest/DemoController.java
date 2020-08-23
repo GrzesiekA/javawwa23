@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,16 @@ public class DemoController {
     @GetMapping("/statsForDay")
     public Map<LocalDate, Optional<PricePerDay>> statsForDay() throws IOException {
         return fileService.lowerPriceForDay();
+    }
+
+    @GetMapping("/statsForMonth")
+    public Map<String, Optional<PricePerDay>> statsForMonth() throws IOException {
+        return fileService.lowerPriceForMonth();
+    }
+
+    @GetMapping("/allPrices")
+    public BigDecimal allPrices() throws IOException {
+        return fileService.sumLowPrices();
     }
 
 //    @GetMapping("/price2")
