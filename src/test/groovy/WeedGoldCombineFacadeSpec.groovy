@@ -23,7 +23,7 @@ class WeedGoldCombineFacadeSpec extends Specification {
     def 'should calculate weed price in gold'() {
         given:
         goldService.getGold(_ as String) >> new BigDecimal(2)
-        statService.statistics() >>
+        statService.lowerPriceForMonth() >>
                 ['2020-08-23': Optional.of(new PricePerDay(lowQualityPrice: new BigDecimal(10)))]
 
         when:
@@ -36,7 +36,7 @@ class WeedGoldCombineFacadeSpec extends Specification {
     def 'should not send email when gold price is 1'() {
         given:
         goldService.getGold(_ as String) >> BigDecimal.ONE
-        statService.statistics() >> [:]
+        statService.lowerPriceForMonth() >> [:]
 
         when:
         weedGoldCombineFacade.weedForGold()
@@ -49,7 +49,7 @@ class WeedGoldCombineFacadeSpec extends Specification {
     def 'should send #emails emails when gold price is #price'() {
         given:
         goldService.getGold(_ as String) >> BigDecimal.valueOf(price)
-        statService.statistics() >> [:]
+        statService.lowerPriceForMonth() >> [:]
 
         when:
         weedGoldCombineFacade.weedForGold()
