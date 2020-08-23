@@ -11,5 +11,3 @@ public class GoldDataDto {
 
     private BigDecimal cena;
 }
-
-
